@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Functional Programming</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+
+      .column:first-of-type {float:left}
+      .column:last-of-type {float:right}
+      .split-50 .column:first-of-type {width: 50%}
+      .split-50 .column:last-of-type {width: 50%}
+
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+![Functional Programming](./images/functional_programming.jpg)
+
+---
+class: center, middle
+
+# Let's start with a quick overview of Monads
+![Monads](./images/monad.jpg)
+
+---
+class: center, middle
+
+# Seriously, let's talk about functions.
+![Functions](./images/function.jpg)
+
+---
+class: center, middle
+
+# It takes a fundamental shift in thinking
+
+.split-50[
+.column[
+### Imperative Programming
+Focus on "How"
+.left[
+```javascript
+let list = [1, 2, 3, 4, 5];
+let newList = [];
+for (let x = 0; x < list.length; i++) {
+  newList.push(list[i] * 2);
+}
+```
+]
+]
+.column[
+### Declarative Programming
+Focus on "What"
+.left[
+```javascript
+let list = [1, 2, 3, 4, 5];
+let double = (x) => x * 2;
+let newList = map(double, list);
+.
+.
+```
+]
+]
+]
+![paradigm](./images/paradigm.jpg)
+
+---
+class: center, middle
+
+# Pure functions don't mutate state
+
+### (x) => x + 1
+### (x, y) => x + y
+
+![Mutable State](./images/mutable_state.png)
+
+---
+class: center, middle
+
+# Functions should be singularly focused
+
+![Mutable State](./images/one_job.jpg)
+
+---
+class: center, middle
+
+# Higher order functions allow reuse
+
+.left[
+```javascript
+let inc = (x) => x + 1;
+let list = [1, 2, 3, 4, 5];
+let incremented = map(inc, list);
+```
+]
+
+![Higher Order](./images/what_if.png)
+
+---
+class: center, middle
+
+# Closures: Functions that return functions
+
+.left[
+```javascript
+let addX = (x) => (y) => x + y;
+let inc = addX(1);
+let incremented = map(inc, list);
+let incremented = map(addX(1), list);
+```
+]
+
+![Functions in Functions](./images/function_in_function.jpg)
+
+---
+class: center, middle
+
+![Code](./images/show_me_code.jpeg)
+
+---
+class: center, middle
+
+![Javascript](./images/undefined.jpeg)
+
+---
+class: center, middle
+
+# HTTP Protocol
+
+.split-50[
+.column[
+### Request
+
+.left[
+```
+GET /hello.html HTTP/1.1
+User-Agent: TestBrowser
+Host: example.com
+Accept-Language: en-us
+Accept-Encoding: gzip, deflate
+Connection: Keep-Alive
+
+```
+]
+]
+.column[
+### Response
+
+.left[
+```
+HTTP/1.1 200 OK
+Date: Mon, 31 July 2017 10:42:23 GMT
+Content-Type: text/html; charset=UTF-8
+Content-Encoding: UTF-8
+Content-Length: 109
+Last-Modified: Mon, 31 July 2017 10:42:23 GMT
+Connection: close
+
+<html>
+  <head>
+    <title>Hello World</title>
+  </head>
+  <body>
+    <h1>Hello World</h1>
+  </body>
+</html>
+```
+]
+]
+]
+
+---
+class: center, middle
+
+# Semi-Functional Server Shell
+
+.left[
+```javascript
+import net from "net";
+import {http} from "./http";
+
+const PORT = 5000 || process.env.PORT;
+const ADDRESS = "127.0.0.1" || process.env.ADDRESS;
+
+const normalizeData = (data) => data.replace(/\r\n/g,"\n")
+const onData = (socket) => (data) => socket.write(http(normalizeData(data)));
+
+const onClientConnected = (socket) => {
+  socket.setEncoding("utf8");
+  socket.on("data", onData(socket));
+}
+
+const server = net.createServer(onClientConnected);
+server.on("listening", () => console.log(`Listening on ${ADDRESS}:${PORT}`));
+server.listen(PORT, ADDRESS);
+```
+]
+
+---
+class: center, middle
+
+# HTTP Function
+
+![HTTP](./images/request_response.png)
+
+---
+class: center, middle
+
+# HTTP Function as Code
+
+.left[
+```javascript
+const http = pipe(
+  parse,
+  route,
+  render
+);
+```
+]
+
+---
+class: center, middle
+
+# Parse
+
+.left[
+```javascript
+const parse = (input) => {
+  const [top, body] = split("\n\n", input);
+  const [request, ...headerLines] = split("\n", top);
+  return pipe(
+    parseRequest,
+    parseHeaders,
+    parseBody
+  )({request, headerLines, body, respBody: "", params: {}});
+};
+```
+]
+
+---
+class: center, middle
+
+# Route
+
+.left[
+```javascript
+const route = match([
+  [{status: _}, indentity],
+  [{method: "GET", path: "/"}, home],
+  [{method: "GET", path: RE("/projects/(?<id>\\d+)")}, showProject],
+  [_, notFound]
+]);
+```
+]
+
+---
+class: center, middle
+
+# Route
+
+![HTTP](./images/nice_function.jpg)
+
+---
+class: center, middle
+
+# Route
+
+.left[
+```javascript
+const addPathParams = (action) =>
+  (input, params) => action({...input, params: {...input.params, ...params}});
+
+const route = match([
+  [{status: _}, indentity],
+  [{method: "GET", path: "/"}, home],
+  [{method: "GET", path: RE("/projects/(?<id>\\d+)")}, addPathParams(showProject)],
+  [_, notFound]
+]);
+```
+]
+
+---
+class: center, middle
+
+# Render
+
+.left[
+```javascript
+const render = (input) =>
+  `HTTP1.1 ${fullStatus(input.status)}\n` +
+  renderResponseHeaders(addResponseHeaders(input)) +
+  `\n${input.respBody}`;
+```
+]
+
+---
+class: center, middle
+
+# Live Demos
+
+![Live Code](./images/fail.png)
+
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>

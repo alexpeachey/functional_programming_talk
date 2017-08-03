@@ -1,0 +1,29 @@
+{
+  "name": "functional-programming",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "repl": "babel-node index.js",
+    "server": "babel-node examples/server.js"
+  },
+  "babel": {
+    "plugins": [
+      "transform-object-rest-spread"
+    ],
+    "presets": [
+      "env"
+    ]
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.25.0",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-preset-env": "^1.5.2",
+    "babel-preset-flow": "^6.23.0",
+    "babel-repl": "0.0.7",
+    "xregexp": "^3.2.0"
+  }
+}
